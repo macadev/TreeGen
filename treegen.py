@@ -1,5 +1,6 @@
 from math import sin, cos, tan, pi, atan2
 import cairo
+import random
 
 # starting coords
 TREE_ROOT = (0,0)
@@ -36,11 +37,47 @@ class Canvas(object):
 		self.ctx.set_source_rgb(*color(background_color))
 		self.ctx.paint()
 
+class Point(object):
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+
+def get_random_point():
+	return Point(random.uniform(-1,1) * 150, random.random() * 150)
+
+def get_children_coords(num_children):
+	children_coords = []
+	for i in range(0, num_children):
+		children_coords.append(get_random_point())
+	return children_coords
+
+def draw_children(canvas, parent_pos, num_children, level):
+	if level == 0:
+		return
+	canvas.ctx.save() # Save the current snapshot of transformations
+	canvas.ctx.translate(parent_pos.x, parent_pos.y)
+	children_coords = get_children_coords(num_children)
+	for child_pos in children_coords:
+		canvas.ctx.move_to(0, 0)
+		canvas.ctx.line_to(child_pos.x, child_pos.y)
+		# Recursively build the other branches
+		draw_children(canvas, child_pos, num_children + 1, level - 1)
+	canvas.ctx.restore() # Restore to the original coordinate system
+
 def draw_tree(canvas, levels, num_branches):
-	# Draw trunk at base of image
+	# Transform the coordinate system so that it's normal
+	canvas.ctx.translate(0, 1024)
+	canvas.ctx.scale(1, -1)
+	# Draw the tree trunk
 	canvas.ctx.set_source_rgb(1,1,1)
-	canvas.ctx.move_to(0,0)
-	canvas.ctx.line_to(512, 512)
+	canvas.ctx.move_to(512,0)
+	canvas.ctx.line_to(512, 256)
+	
+	parent_coord = Point(512, 256)
+	tree_levels = 5
+	num_children = 2
+	
+	draw_children(canvas, parent_coord, num_children, tree_levels)
 	canvas.ctx.stroke()
 	canvas.surface.write_to_png('out.png')
 
