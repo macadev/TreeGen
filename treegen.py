@@ -8,7 +8,7 @@ TREE_TRUNK = (0,1)
 
 # drawing constants
 STROKE_COLOR = 0xFFFF00 # yellow
-LINE_WIDTH = 1
+LINE_WIDTH = 0.5
 
 # canvas constants
 IMG_WIDTH = 1024
@@ -51,18 +51,25 @@ def get_children_coords(num_children):
 		children_coords.append(get_random_point())
 	return children_coords
 
+def draw_leaf(canvas):
+	# canvas.ctx.transform(get_shear_transform())
+	canvas.ctx.scale(random.uniform(0.3, 0.7), random.uniform(0.3, 0.7))
+	canvas.ctx.arc(0, 0, 12, 0, 2 * pi)
+
 def draw_children(canvas, parent_pos, num_children, level):
-	if level == 0:
-		return
 	canvas.ctx.save() # Save the current snapshot of transformations
 	canvas.ctx.translate(parent_pos.x, parent_pos.y)
+	if level == 0:
+		draw_leaf(canvas)
+		canvas.ctx.restore()
+		return
 	children_coords = get_children_coords(num_children)
 	for child_pos in children_coords:
 		canvas.ctx.move_to(0, 0)
 		canvas.ctx.line_to(child_pos.x, child_pos.y)
 		# Recursively build the other branches
 		draw_children(canvas, child_pos, num_children + 1, level - 1)
-	canvas.ctx.restore() # Restore to the original coordinate system
+	canvas.ctx.restore() # Restore the original coordinate system
 
 def draw_tree(canvas, levels, num_branches):
 	# Transform the coordinate system so that it's normal
