@@ -8,7 +8,7 @@ TREE_TRUNK = (0,1)
 
 # drawing constants
 STROKE_COLOR = 0xFFFF00 # yellow
-LINE_WIDTH = 0.5
+LINE_WIDTH = 0.8
 
 # canvas constants
 IMG_WIDTH = 1024
@@ -60,7 +60,11 @@ def draw_children(canvas, parent_pos, num_children, level):
 	canvas.ctx.save() # Save the current snapshot of transformations
 	canvas.ctx.translate(parent_pos.x, parent_pos.y)
 	if level == 0:
+		canvas.ctx.stroke() # Draw the branch in white
+		canvas.ctx.set_source_rgb(240.0 / 250, 58.0 / 250, 71.0 / 250) # Set leaf color
 		draw_leaf(canvas)
+		canvas.ctx.fill()
+		canvas.ctx.set_source_rgb(1,1,1)
 		canvas.ctx.restore()
 		return
 	children_coords = get_children_coords(num_children)
@@ -76,7 +80,7 @@ def draw_tree(canvas, levels, num_branches):
 	canvas.ctx.translate(0, 1024)
 	canvas.ctx.scale(1, -1)
 	# Draw the tree trunk
-	canvas.ctx.set_source_rgb(1,1,1)
+	canvas.ctx.set_source_rgb(1,1,1) # Sets the line color to white
 	canvas.ctx.move_to(512,0)
 	canvas.ctx.line_to(512, 256)
 	
