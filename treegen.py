@@ -7,14 +7,17 @@ TREE_ROOT = (0,0)
 TREE_TRUNK = (0,1)
 
 # drawing constants
-STROKE_COLOR = 0xFFFF00 # yellow
 LINE_WIDTH = 0.8
 
 # canvas constants
 IMG_WIDTH = 1024
 IMG_HEIGHT= 1024
 SCALE = 64
-BACKGROUND_COLOR = 0x000250 # black
+
+# Colors
+BACKGROUND_COLOUR = 0x000250 # Blue
+TREE_COLOUR = 0xFFFFFF # White
+LEAF_COLOUR = 0xF03A47 # Pastel red
 
 def color(value):
     r = ((value >> (8 * 2)) & 255) / 255.0
@@ -23,7 +26,7 @@ def color(value):
     return (r, g, b)
 
 class Canvas(object):
-	def __init__(self, width=IMG_WIDTH, height=IMG_HEIGHT, scale=SCALE, background_color=BACKGROUND_COLOR, line_width=LINE_WIDTH):
+	def __init__(self, width=IMG_WIDTH, height=IMG_HEIGHT, scale=SCALE, background_colour=BACKGROUND_COLOUR, line_width=LINE_WIDTH):
 		self.width = width
 		self.height = height
 		self.scale = scale
@@ -34,7 +37,7 @@ class Canvas(object):
 		self.ctx.set_line_cap(cairo.LINE_CAP_ROUND)
 		self.ctx.set_line_join(cairo.LINE_JOIN_ROUND)
 		self.ctx.set_line_width(line_width)
-		self.ctx.set_source_rgb(*color(background_color))
+		self.ctx.set_source_rgb(*color(background_colour))
 		self.ctx.paint()
 
 class Point(object):
@@ -61,10 +64,10 @@ def draw_children(canvas, parent_pos, num_children, level):
 	canvas.ctx.translate(parent_pos.x, parent_pos.y)
 	if level == 0:
 		canvas.ctx.stroke() # Draw the branch in white
-		canvas.ctx.set_source_rgb(240.0 / 250, 58.0 / 250, 71.0 / 250) # Set leaf color
+		canvas.ctx.set_source_rgb(*color(LEAF_COLOUR)) # Set leaf color
 		draw_leaf(canvas)
 		canvas.ctx.fill()
-		canvas.ctx.set_source_rgb(1,1,1)
+		canvas.ctx.set_source_rgb(*color(TREE_COLOUR))
 		canvas.ctx.restore()
 		return
 	children_coords = get_children_coords(num_children)
@@ -80,7 +83,7 @@ def draw_tree(canvas, levels, num_branches):
 	canvas.ctx.translate(0, 1024)
 	canvas.ctx.scale(1, -1)
 	# Draw the tree trunk
-	canvas.ctx.set_source_rgb(1,1,1) # Sets the line color to white
+	canvas.ctx.set_source_rgb(*color(TREE_COLOUR)) # Sets the line color to white
 	canvas.ctx.move_to(512,0)
 	canvas.ctx.line_to(512, 256)
 	
