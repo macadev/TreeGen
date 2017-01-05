@@ -17,7 +17,7 @@ SCALE = 64
 # Colors
 BACKGROUND_COLOUR = 0x000250 # Blue
 TREE_COLOUR = 0xFFFFFF # White
-LEAF_COLOUR = 0xF03A47 # Pastel red
+LEAF_COLOURS = [0xF03A47, 0xD8343F, 0xC02E38] # Pastel red
 
 def color(value):
     r = ((value >> (8 * 2)) & 255) / 255.0
@@ -40,10 +40,16 @@ class Canvas(object):
 		self.ctx.set_source_rgb(*color(background_colour))
 		self.ctx.paint()
 
+	def draw():
+		pass
+
 class Point(object):
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
+
+def get_random_leaf_color():
+	return color(random.choice(LEAF_COLOURS))
 
 def get_random_point():
 	return Point(random.uniform(-1,1) * 150, random.random() * 150)
@@ -64,7 +70,7 @@ def draw_children(canvas, parent_pos, num_children, level):
 	canvas.ctx.translate(parent_pos.x, parent_pos.y)
 	if level == 0:
 		canvas.ctx.stroke() # Draw the branch in white
-		canvas.ctx.set_source_rgb(*color(LEAF_COLOUR)) # Set leaf color
+		canvas.ctx.set_source_rgb(*get_random_leaf_color()) # Set leaf color
 		draw_leaf(canvas)
 		canvas.ctx.fill()
 		canvas.ctx.set_source_rgb(*color(TREE_COLOUR))
@@ -78,15 +84,18 @@ def draw_children(canvas, parent_pos, num_children, level):
 		draw_children(canvas, child_pos, num_children + 1, level - 1)
 	canvas.ctx.restore() # Restore the original coordinate system
 
-def draw_tree(canvas, levels, num_branches):
+def pre_drawing_initialization(canvas):
 	# Transform the coordinate system so that it's normal
 	canvas.ctx.translate(0, 1024)
 	canvas.ctx.scale(1, -1)
+
+def draw_tree_trunk(canvas):
 	# Draw the tree trunk
 	canvas.ctx.set_source_rgb(*color(TREE_COLOUR)) # Sets the line color to white
 	canvas.ctx.move_to(512,0)
 	canvas.ctx.line_to(512, 256)
-	
+
+def draw_tree(canvas, levels, num_branches):
 	parent_coord = Point(512, 256)
 	tree_levels = 5
 	num_children = 2
@@ -97,6 +106,8 @@ def draw_tree(canvas, levels, num_branches):
 
 def main():
 	canvas = Canvas()
+	pre_drawing_initialization(canvas)
+	draw_tree_trunk(canvas)
 	draw_tree(canvas, 10, 10)
 
 if __name__ == '__main__':
