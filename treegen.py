@@ -47,6 +47,46 @@ class Canvas(object):
 		# temporary data storage in between frames
 		self.draw_stack = []
 
+	def draw_children(self, parent_pos, num_children, level):
+		self.ctx.save() # Save the current snapshot of transformations
+		self.ctx.translate(parent_pos.x, parent_pos.y)
+		if level == 0:
+			self.ctx.stroke() # Draw the branch in white
+			self.ctx.set_source_rgb(*get_random_leaf_color()) # Set leaf color
+			draw_leaf(self)
+			self.ctx.fill()
+			self.ctx.set_source_rgb(*color(TREE_COLOUR))
+			self.ctx.restore()
+			# TICK()
+			return
+		children_coords = get_children_coords(num_children)
+		for child_pos in children_coords:
+			self.ctx.move_to(0, 0)
+			self.ctx.line_to(child_pos.x, child_pos.y)
+			# Recursively build the other branches
+			# TICK()
+			self.draw_children(child_pos, num_children + 1, level - 1)
+		self.ctx.restore() # Restore the original coordinate system
+
+	def pre_drawing_initialization(self):
+		# Transform the coordinate system so that it's normal
+		self.ctx.translate(0, 1024)
+		self.ctx.scale(1, -1)
+
+	def draw_tree_trunk(self):
+		# Draw the tree trunk
+		self.ctx.set_source_rgb(*color(TREE_COLOUR)) # Sets the line color to white
+		self.ctx.move_to(512,0)
+		self.ctx.line_to(512, 256)
+
+	def draw_tree(self, levels, num_branches):
+		parent_coord = Point(512, 256)
+		tree_levels = 5
+		num_children = 2
+		self.draw_children(parent_coord, num_children, tree_levels)
+		self.ctx.stroke()
+		self.surface.write_to_png('out.png')
+
 	def draw(self):
 		pass
 
@@ -77,52 +117,11 @@ def draw_leaf(canvas):
 	canvas.ctx.scale(random.uniform(0.3, 0.7), random.uniform(0.3, 0.7))
 	canvas.ctx.arc(0, 0, 12, 0, 2 * pi)
 
-def draw_children(canvas, parent_pos, num_children, level):
-	canvas.ctx.save() # Save the current snapshot of transformations
-	canvas.ctx.translate(parent_pos.x, parent_pos.y)
-	if level == 0:
-		canvas.ctx.stroke() # Draw the branch in white
-		canvas.ctx.set_source_rgb(*get_random_leaf_color()) # Set leaf color
-		draw_leaf(canvas)
-		canvas.ctx.fill()
-		canvas.ctx.set_source_rgb(*color(TREE_COLOUR))
-		canvas.ctx.restore()
-		# TICK()
-		return
-	children_coords = get_children_coords(num_children)
-	for child_pos in children_coords:
-		canvas.ctx.move_to(0, 0)
-		canvas.ctx.line_to(child_pos.x, child_pos.y)
-		# Recursively build the other branches
-		# TICK()
-		draw_children(canvas, child_pos, num_children + 1, level - 1)
-	canvas.ctx.restore() # Restore the original coordinate system
-
-def pre_drawing_initialization(canvas):
-	# Transform the coordinate system so that it's normal
-	canvas.ctx.translate(0, 1024)
-	canvas.ctx.scale(1, -1)
-
-def draw_tree_trunk(canvas):
-	# Draw the tree trunk
-	canvas.ctx.set_source_rgb(*color(TREE_COLOUR)) # Sets the line color to white
-	canvas.ctx.move_to(512,0)
-	canvas.ctx.line_to(512, 256)
-
-def draw_tree(canvas, levels, num_branches):
-	parent_coord = Point(512, 256)
-	tree_levels = 5
-	num_children = 2
-	
-	draw_children(canvas, parent_coord, num_children, tree_levels)
-	canvas.ctx.stroke()
-	canvas.surface.write_to_png('out.png')
-
 def main():
 	canvas = Canvas()
-	pre_drawing_initialization(canvas)
-	draw_tree_trunk(canvas)
-	draw_tree(canvas, 10, 10)
+	canvas.pre_drawing_initialization()
+	canvas.draw_tree_trunk()
+	canvas.draw_tree(10, 10)
 
 if __name__ == '__main__':
 	main()
