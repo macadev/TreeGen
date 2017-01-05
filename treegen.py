@@ -47,7 +47,56 @@ class Canvas(object):
 		# temporary data storage in between frames
 		self.draw_stack = []
 
-	def draw_children(self, parent_pos, num_children, level):
+	def push_data_to_draw_stack(self, animation_data):
+		self.draw_stack.append(animation_data)
+
+	def draw_children(self):
+		self.ctx.save()
+		animation_data = self.draw_stack.pop()
+
+		print "DATA!"
+		print "Children in list: ", len(animation_data.children_coords), " Level: ", animation_data.level, " Num children: ", animation_data.num_children
+		# " X: ", animation_data.parent_coord.x, " Y: ", animation_data.parent_coord.y
+		if animation_data.num_children == len(animation_data.children_coords):
+			self.ctx.translate(animation_data.parent_coord.x, animation_data.parent_coord.y)
+		
+		if animation_data.level == 0:
+			self.ctx.set_source_rgb(*get_random_leaf_color()) # Set leaf color
+			draw_leaf(self)
+			self.ctx.fill()
+			self.ctx.set_source_rgb(*color(TREE_COLOUR))
+			print "1. Restoring!\n"
+			self.ctx.restore()
+			# TICK()
+			return
+
+		num_children = len(animation_data.children_coords)
+		
+		child_pos = []
+		try:
+			child_pos = animation_data.children_coords.pop()
+		except:
+			print "2. Restoring"
+			self.ctx.restore()
+			return
+		
+		self.ctx.set_source_rgb(*color(TREE_COLOUR))
+		self.ctx.move_to(0, 0)
+		self.ctx.line_to(child_pos.x, child_pos.y)
+		self.ctx.stroke()
+		
+		new_children = get_children_coords(animation_data.num_children + 1)
+		new_animation_data = AnimationData(child_pos, new_children, animation_data.level - 1, animation_data.num_children + 1)
+		
+		print "LEN: ", num_children
+		if num_children != 0:
+			self.push_data_to_draw_stack(animation_data)
+		# else:
+			# print "2. Restoring!\n"
+			# self.ctx.restore()
+		self.push_data_to_draw_stack(new_animation_data)
+
+	def draw_children_2(self, parent_pos, num_children, level):
 		self.ctx.save() # Save the current snapshot of transformations
 		self.ctx.translate(parent_pos.x, parent_pos.y)
 		if level == 0:
@@ -81,10 +130,13 @@ class Canvas(object):
 
 	def draw_tree(self, levels, num_branches):
 		parent_coord = Point(512, 256)
-		tree_levels = 5
+		tree_levels = 2
 		num_children = 2
-		self.draw_children(parent_coord, num_children, tree_levels)
-		self.ctx.stroke()
+		children_coords = get_children_coords(num_children)
+		self.push_data_to_draw_stack(AnimationData(parent_coord, children_coords, tree_levels, num_children))
+		while len(self.draw_stack) != 0:
+			self.draw_children()
+		# self.ctx.stroke()
 		self.surface.write_to_png('out.png')
 
 	def draw(self):
@@ -96,9 +148,11 @@ class Point(object):
 		self.y = y
 
 class AnimationData(object):
-	def __init__(self, children_coords, level):
+	def __init__(self, parent_coord, children_coords, level, num_children):
+		self.parent_coord = parent_coord
 		self.children_coords = children_coords
 		self.level = level
+		self.num_children = num_children
 
 def get_random_leaf_color():
 	return color(random.choice(LEAF_COLOURS))
