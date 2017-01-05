@@ -44,13 +44,21 @@ class Canvas(object):
 		self.ctx.set_source_rgb(*color(background_colour))
 		self.ctx.paint()
 
-	def draw():
+		# temporary data storage in between frames
+		self.draw_stack = []
+
+	def draw(self):
 		pass
 
 class Point(object):
 	def __init__(self, x, y):
 		self.x = x
 		self.y = y
+
+class AnimationData(object):
+	def __init__(self, children_coords, level):
+		self.children_coords = children_coords
+		self.level = level
 
 def get_random_leaf_color():
 	return color(random.choice(LEAF_COLOURS))
@@ -79,12 +87,14 @@ def draw_children(canvas, parent_pos, num_children, level):
 		canvas.ctx.fill()
 		canvas.ctx.set_source_rgb(*color(TREE_COLOUR))
 		canvas.ctx.restore()
+		# TICK()
 		return
 	children_coords = get_children_coords(num_children)
 	for child_pos in children_coords:
 		canvas.ctx.move_to(0, 0)
 		canvas.ctx.line_to(child_pos.x, child_pos.y)
 		# Recursively build the other branches
+		# TICK()
 		draw_children(canvas, child_pos, num_children + 1, level - 1)
 	canvas.ctx.restore() # Restore the original coordinate system
 
