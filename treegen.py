@@ -50,14 +50,31 @@ class Canvas(object):
 	def push_data_to_draw_stack(self, animation_data):
 		self.draw_stack.append(animation_data)
 
+	# def draw_children(self):
+	# 	animation_data = self.draw_stack.pop()
+
+	# 	for child in animation_data.children_coords:
+
+	# 		new_children = get_children_coords(animation_data.num_children + 1)
+	# 		children_coords = get_children_coords(num_children)
+	# 		children_coords = get_children_coords(num_children)
+
+	# 		new_animation_data = AnimationData(parent_coord, children_coords, level, num_children)
+			
+
+	# 		self.parent_coord = parent_coord
+	# 		self.children_coords = children_coords
+	# 		self.level = level
+	# 		self.num_children = num_children
+
 	def draw_children(self):
 		self.ctx.save()
 		animation_data = self.draw_stack.pop()
 
 		print "DATA!"
-		print "Children in list: ", len(animation_data.children_coords), " Level: ", animation_data.level, " Num children: ", animation_data.num_children
-		# " X: ", animation_data.parent_coord.x, " Y: ", animation_data.parent_coord.y
+		print "Children in list: ", len(animation_data.children_coords), " Level: ", animation_data.level, " Num children: ", animation_data.num_children, " X: ", animation_data.parent_coord.x, " Y: ", animation_data.parent_coord.y
 		if animation_data.num_children == len(animation_data.children_coords):
+			print "translating!"
 			self.ctx.translate(animation_data.parent_coord.x, animation_data.parent_coord.y)
 		
 		if animation_data.level == 0:
@@ -71,14 +88,12 @@ class Canvas(object):
 			return
 
 		num_children = len(animation_data.children_coords)
-		
-		child_pos = []
-		try:
-			child_pos = animation_data.children_coords.pop()
-		except:
+		if num_children == 0:
 			print "2. Restoring"
 			self.ctx.restore()
 			return
+
+		child_pos = animation_data.children_coords.pop()
 		
 		self.ctx.set_source_rgb(*color(TREE_COLOUR))
 		self.ctx.move_to(0, 0)
@@ -89,8 +104,7 @@ class Canvas(object):
 		new_animation_data = AnimationData(child_pos, new_children, animation_data.level - 1, animation_data.num_children + 1)
 		
 		print "LEN: ", num_children
-		if num_children != 0:
-			self.push_data_to_draw_stack(animation_data)
+		self.push_data_to_draw_stack(animation_data)
 		# else:
 			# print "2. Restoring!\n"
 			# self.ctx.restore()
@@ -134,9 +148,12 @@ class Canvas(object):
 		num_children = 2
 		children_coords = get_children_coords(num_children)
 		self.push_data_to_draw_stack(AnimationData(parent_coord, children_coords, tree_levels, num_children))
+		
+		# self.draw_children(parent_coord, num_children, tree_levels)
+
 		while len(self.draw_stack) != 0:
 			self.draw_children()
-		# self.ctx.stroke()
+		self.ctx.stroke()
 		self.surface.write_to_png('out.png')
 
 	def draw(self):
@@ -167,7 +184,6 @@ def get_children_coords(num_children):
 	return children_coords
 
 def draw_leaf(canvas):
-	# canvas.ctx.transform(get_shear_transform())
 	canvas.ctx.scale(random.uniform(0.3, 0.7), random.uniform(0.3, 0.7))
 	canvas.ctx.arc(0, 0, 12, 0, 2 * pi)
 
