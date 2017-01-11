@@ -1,10 +1,6 @@
 from math import sin, cos, tan, pi, atan2
 import cairo
 import random
-# imports for animating
-import pygtk
-import gtk, gobject, cairo
-from gtk import gdk
 
 # starting coords
 TREE_ROOT = (0,0)
