@@ -96,13 +96,12 @@ class Canvas(object):
 		num_children = 2
 		children_coords = get_children_coords(parent_coord, num_children)
 		self.push_data_to_draw_stack(AnimationData(parent_coord, children_coords, tree_levels, num_children))
-		
-		# self.draw_children(parent_coord, num_children, tree_levels)
 
+		counter = 1
 		while len(self.draw_stack) != 0:
 			self.draw_children()
-		self.ctx.stroke()
-		self.surface.write_to_png('out.png')
+			self.surface.write_to_png('out' + str(counter) + '.png')
+			counter = counter + 1
 
 	def draw(self):
 		pass
