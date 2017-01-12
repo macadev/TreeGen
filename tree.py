@@ -8,6 +8,7 @@ class Tree(object):
 		self.starting_pos = starting_pos
 		self.max_branch_length = max_branch_length
 		self.init_children = init_children
+		self.root_node = None
 		self.build_tree()
 
 	def get_child_pos(self, origin_pos):
@@ -47,6 +48,15 @@ class Tree(object):
 		for child_node in node.children:
 			self.print_tree_helper(child_node)
 
+	def apply_transform(self):
+		self.apply_transform_helper(self.root_node)
+
+	def apply_transform_helper(self, node):
+		new_pos = Point(random.uniform(-1,1) * 3 + node.pos.x, 
+			random.uniform(-1,1) * 3 + node.pos.y)
+		node.pos = new_pos
+		for child in node.children:
+			self.apply_transform_helper(child)
 
 class TreeNode(object):
 	def __init__(self, pos, is_leaf, children):

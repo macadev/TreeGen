@@ -80,7 +80,7 @@ class Canvas(object):
 		self.ctx.set_source_rgb(*color(TREE_COLOUR)) # Sets the line color to white
 		self.ctx.move_to(512,0)
 		self.ctx.line_to(512, 256)
-	
+
 	def generate_tree_growth_animation_frames(self, levels, num_branches):
 		parent_coord = Point(512, 256)
 		tree_levels = 5
@@ -94,10 +94,20 @@ class Canvas(object):
 			self.surface.write_to_png('out' + str(counter) + '.png')
 			counter = counter + 1
 
-	def build_and_draw_tree(self, levels, starting_pos, num_children, max_branch_length):
-		tree = Tree(levels, starting_pos, num_children, max_branch_length)
-		self.build_and_draw_tree_helper(tree.root_node)
+	def build_tree(self, levels, starting_pos, num_children, max_branch_length):
+		self.tree = Tree(levels, starting_pos, num_children, max_branch_length)
+
+	def draw_tree(self):
+		self.build_and_draw_tree_helper(self.tree.root_node)
 		self.surface.write_to_png('out.png')
+
+	def generate_random_motion_animation_frames(self):
+		for i in range(0, 200):
+			self.tree.apply_transform()
+			self.draw_tree()
+			# self.surface.write_to_png('out' + str(i) + '.png')
+			# self.ctx.set_source_rgb(*color(background_colour))
+			# self.ctx.paint()
 
 	def build_and_draw_tree_helper(self, node):
 		if node.is_leaf:
@@ -147,7 +157,10 @@ def main():
 	init_num_children = 2
 	max_branch_length = 150
 	levels = 5
-	canvas.build_and_draw_tree(levels, starting_pos, init_num_children, max_branch_length)
+	canvas.build_tree(levels, starting_pos, init_num_children, max_branch_length)
+	canvas.generate_random_motion_animation_frames()
+
+	# canvas.draw_tree()
 	# canvas.draw_tree(10, 10)
 
 if __name__ == '__main__':
