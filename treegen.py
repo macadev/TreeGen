@@ -31,6 +31,7 @@ class Canvas(object):
 		self.width = width
 		self.height = height
 		self.scale = scale
+		self.background_colour = background_colour
 		self.surface = cairo.ImageSurface(
             cairo.FORMAT_RGB24, self.width, self.height)
 		# context settings
@@ -105,9 +106,9 @@ class Canvas(object):
 		for i in range(0, 200):
 			self.tree.apply_transform()
 			self.draw_tree()
-			# self.surface.write_to_png('out' + str(i) + '.png')
-			# self.ctx.set_source_rgb(*color(background_colour))
-			# self.ctx.paint()
+			self.surface.write_to_png('out' + str(i) + '.png')
+			self.ctx.set_source_rgb(*color(self.background_colour))
+			self.ctx.paint()
 
 	def build_and_draw_tree_helper(self, node):
 		if node.is_leaf:
