@@ -80,8 +80,8 @@ class Canvas(object):
 		self.ctx.set_source_rgb(*color(TREE_COLOUR)) # Sets the line color to white
 		self.ctx.move_to(512,0)
 		self.ctx.line_to(512, 256)
-
-	def create_tree_growth_frames(self, levels, num_branches):
+	
+	def generate_tree_growth_animation_frames(self, levels, num_branches):
 		parent_coord = Point(512, 256)
 		tree_levels = 5
 		num_children = 2
