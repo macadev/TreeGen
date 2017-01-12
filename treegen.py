@@ -1,4 +1,5 @@
 from math import sin, cos, tan, pi, atan2
+from tree import Tree, TreeNode, Point
 import cairo
 import random
 
@@ -50,13 +51,7 @@ class Canvas(object):
 		animation_data = self.draw_stack.pop()
 		
 		if animation_data.level == 0:
-			self.ctx.save()
-			self.ctx.translate(animation_data.parent_coord.x, animation_data.parent_coord.y)
-			self.ctx.set_source_rgb(*get_random_leaf_color()) # Set leaf color
-			self.ctx.move_to(0, 0)
-			draw_leaf(self)
-			self.ctx.fill()
-			self.ctx.restore()
+			draw_leaf(self, animation_data.parent_coord)
 			return
 
 		child_pos = animation_data.children_coords.pop()
@@ -86,7 +81,7 @@ class Canvas(object):
 		self.ctx.move_to(512,0)
 		self.ctx.line_to(512, 256)
 
-	def draw_tree(self, levels, num_branches):
+	def create_tree_growth_frames(self, levels, num_branches):
 		parent_coord = Point(512, 256)
 		tree_levels = 5
 		num_children = 2
@@ -99,13 +94,20 @@ class Canvas(object):
 			self.surface.write_to_png('out' + str(counter) + '.png')
 			counter = counter + 1
 
-	def draw(self):
-		pass
+	def build_and_draw_tree(self, levels, starting_pos, num_children, max_branch_length):
+		tree = Tree(levels, starting_pos, num_children, max_branch_length)
+		self.build_and_draw_tree_helper(tree.root_node)
+		self.surface.write_to_png('out.png')
 
-class Point(object):
-	def __init__(self, x, y):
-		self.x = x
-		self.y = y
+	def build_and_draw_tree_helper(self, node):
+		if node.is_leaf:
+			draw_leaf(self, node.pos)
+		for child in node.children:
+			self.ctx.set_source_rgb(*color(TREE_COLOUR))
+			self.ctx.move_to(node.pos.x, node.pos.y)
+			self.ctx.line_to(child.pos.x, child.pos.y)
+			self.ctx.stroke()
+			self.build_and_draw_tree_helper(child)
 
 class AnimationData(object):
 	def __init__(self, parent_coord, children_coords, level, num_children):
@@ -126,15 +128,27 @@ def get_children_coords(parent_coord, num_children):
 		children_coords.append(get_random_point(parent_coord))
 	return children_coords
 
-def draw_leaf(canvas):
+def draw_leaf(canvas, pos):
+	canvas.ctx.save()
+	canvas.ctx.translate(pos.x, pos.y)
+	canvas.ctx.set_source_rgb(*get_random_leaf_color()) # Set leaf color
+	canvas.ctx.move_to(0, 0)
 	canvas.ctx.scale(random.uniform(0.3, 0.7), random.uniform(0.3, 0.7))
 	canvas.ctx.arc(0, 0, 12, 0, 2 * pi)
+	canvas.ctx.fill()
+	canvas.ctx.restore()
 
 def main():
 	canvas = Canvas()
 	canvas.pre_drawing_initialization()
 	canvas.draw_tree_trunk()
-	canvas.draw_tree(10, 10)
+	
+	starting_pos = Point(512, 256)
+	init_num_children = 2
+	max_branch_length = 150
+	levels = 5
+	canvas.build_and_draw_tree(levels, starting_pos, init_num_children, max_branch_length)
+	# canvas.draw_tree(10, 10)
 
 if __name__ == '__main__':
 	main()

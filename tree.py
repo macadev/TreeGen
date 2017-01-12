@@ -59,10 +59,10 @@ class Point(object):
 		self.x = x
 		self.y = y
 
-if __name__ == '__main__':
-	tree_levels = 2
-	starting_pos = Point(0,0)
-	init_children = 2
-	max_branch_length = 150
-	tree = Tree(tree_levels, starting_pos, init_children, max_branch_length)
-	tree.print_tree()
+# if __name__ == '__main__':
+# 	tree_levels = 2
+# 	starting_pos = Point(0,0)
+# 	init_children = 2
+# 	max_branch_length = 150
+# 	tree = Tree(tree_levels, starting_pos, init_children, max_branch_length)
+# 	tree.print_tree()
